@@ -1,0 +1,6 @@
+streamlit
+pandas
+plotly
+numpy
+psycopg2-binary
+python-dotenv
