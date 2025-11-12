@@ -49,6 +49,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+
 # ===== FUNGSI HELPER =====
 @st.cache_data
 def load_data(uploaded_file):
@@ -93,40 +95,105 @@ def get_aggregation_name(agg_type):
 # ===== HEADER =====
 st.markdown('<div class="main-header"><h1>📊 Dashboard Data Universal</h1><p>Untuk Semua Jenis Data - Inventory, Penjualan, Keuangan, dll</p></div>', unsafe_allow_html=True)
 
+
+
+
+# ===== PANDUAN PENGGUNAAN =====
+with st.subheader("❓ Panduan Penggunaan Dashboard"):
+    st.markdown("""
+    ###  Cara Menggunakan Dashboard Ini:
+    
+    #### 1 **Upload Data:**
+    - Siapkan file CSV Anda (bisa dari Excel: Save As → CSV)
+    - Upload di sidebar kiri
+    
+    #### 2 **Pilih Kolom:**
+    - Centang kolom yang ingin Anda analisis
+    - Tidak perlu pilih semua, pilih yang penting saja
+    
+    #### 3 **Pilih Mode:**
+    - **Mode Sederhana**: Dashboard otomatis membuat grafik
+    - **Mode Advanced**: Anda tentukan sendiri cara perhitungannya
+    
+    #### 4 **Mode Advanced - Contoh Penggunaan:**
+    
+    **Contoh 1: Menghitung Total Penjualan per Wilayah**
+    - Kelompokkan berdasarkan: `Wilayah`
+    - Kolom yang dihitung: `Penjualan`
+    - Cara perhitungan: `Jumlahkan (Total)`
+    
+    **Contoh 2: Rata-rata Harga per Kategori Produk**
+    - Kelompokkan berdasarkan: `Kategori`
+    - Kolom yang dihitung: `Harga`
+    - Cara perhitungan: `Rata-rata`
+    
+    **Contoh 3: Hitung Jumlah Transaksi per Bulan**
+    - Kelompokkan berdasarkan: `Bulan`
+    - Kolom yang dihitung: (Kolom apapun)
+    - Cara perhitungan: `Hitung Jumlah`
+    
+    #### 5 **Tips:**
+    - Gunakan filter untuk fokus pada data tertentu
+    - Download hasil untuk dibuka di Excel
+    - Coba berbagai kombinasi kelompok dan perhitungan
+    
+    #### 📊 **Penjelasan Operasi Perhitungan:**
+    - **Jumlahkan**: Menjumlahkan semua nilai (misal: total penjualan)
+    - **Rata-rata**: Nilai tengah dari semua data
+    - **Nilai Tengah**: Median, nilai di posisi tengah
+    - **Hitung Jumlah**: Menghitung berapa banyak baris data
+    - **Nilai Terkecil/Terbesar**: Mencari nilai minimum/maksimum
+    """)
+
 # ===== SIDEBAR =====
-with st.sidebar:
-    st.header("⚙️ Pengaturan")
-    
-    # Upload file
-    st.subheader("📁 1. Upload Data Anda")
-    uploaded_file = st.file_uploader(
-        "Pilih file CSV",
-        type=['csv'],
-        help="Upload file Excel yang sudah disimpan sebagai CSV"
-    )
-    
-    use_sample = st.checkbox("Gunakan Data Contoh", value=not uploaded_file)
-    
-    if use_sample and not uploaded_file:
-        df_original = create_sample_data()
-        st.success("✅ Menggunakan data contoh")
-    elif uploaded_file:
-        df_original, error = load_data(uploaded_file)
-        if error:
-            st.error(f"❌ Error: {error}")
-            st.stop()
-        else:
-            st.success(f"✅ Data dimuat: {len(df_original)} baris")
-    else:
-        st.markdown("""
-        <div class='info-box'>
-            <h4>👋 Selamat Datang!</h4>
-            <p>Upload file CSV Anda atau gunakan data contoh untuk memulai</p>
-        </div>
-        """, unsafe_allow_html=True)
+st.header("⚙️ Pengaturan")
+
+# Upload file
+st.subheader("📁 1. Upload Data Anda")
+uploaded_file = st.file_uploader(
+    "Pilih file CSV",
+    type=['csv'],
+    help="Upload file Excel yang sudah disimpan sebagai CSV"
+)
+
+use_sample = st.checkbox("Gunakan Data Contoh", value=not uploaded_file)
+
+# Asumsikan fungsi create_sample_data() dan load_data() sudah didefinisikan
+def create_sample_data():
+    import pandas as pd
+    return pd.DataFrame({
+        "Nama": ["Andi", "Budi", "Citra"],
+        "Nilai": [90, 85, 88]
+    })
+
+def load_data(file):
+    import pandas as pd
+    try:
+        df = pd.read_csv(file)
+        return df, None
+    except Exception as e:
+        return None, str(e)
+
+if use_sample and not uploaded_file:
+    df_original = create_sample_data()
+    st.success("✅ Menggunakan data contoh")
+elif uploaded_file:
+    df_original, error = load_data(uploaded_file)
+    if error:
+        st.error(f"❌ Error: {error}")
         st.stop()
-    
-    st.divider()
+    else:
+        st.success(f"✅ Data dimuat: {len(df_original)} baris")
+else:
+    st.markdown("""
+    <div class='info-box'>
+        <h4>👋 Selamat Datang!</h4>
+        <p>Upload file CSV Anda atau gunakan data contoh untuk memulai</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.stop()
+
+st.divider()
 
 # ===== PILIH KOLOM & OPERASI =====
 st.subheader("🎯 Langkah 1: Pilih Kolom yang Ingin Ditampilkan")
@@ -496,52 +563,7 @@ if analysis_mode == "📊 Mode Sederhana (Otomatis)":
             else:
                 st.info("Tidak ada kolom kategori")
 
-# ===== PANDUAN PENGGUNAAN =====
-with st.expander("❓ Panduan Penggunaan Dashboard"):
-    st.markdown("""
-    ### 📚 Cara Menggunakan Dashboard Ini:
-    
-    #### 1️⃣ **Upload Data:**
-    - Siapkan file CSV Anda (bisa dari Excel: Save As → CSV)
-    - Upload di sidebar kiri
-    
-    #### 2️⃣ **Pilih Kolom:**
-    - Centang kolom yang ingin Anda analisis
-    - Tidak perlu pilih semua, pilih yang penting saja
-    
-    #### 3️⃣ **Pilih Mode:**
-    - **Mode Sederhana**: Dashboard otomatis membuat grafik
-    - **Mode Advanced**: Anda tentukan sendiri cara perhitungannya
-    
-    #### 4️⃣ **Mode Advanced - Contoh Penggunaan:**
-    
-    **Contoh 1: Menghitung Total Penjualan per Wilayah**
-    - Kelompokkan berdasarkan: `Wilayah`
-    - Kolom yang dihitung: `Penjualan`
-    - Cara perhitungan: `Jumlahkan (Total)`
-    
-    **Contoh 2: Rata-rata Harga per Kategori Produk**
-    - Kelompokkan berdasarkan: `Kategori`
-    - Kolom yang dihitung: `Harga`
-    - Cara perhitungan: `Rata-rata`
-    
-    **Contoh 3: Hitung Jumlah Transaksi per Bulan**
-    - Kelompokkan berdasarkan: `Bulan`
-    - Kolom yang dihitung: (Kolom apapun)
-    - Cara perhitungan: `Hitung Jumlah`
-    
-    #### 5️⃣ **Tips:**
-    - Gunakan filter untuk fokus pada data tertentu
-    - Download hasil untuk dibuka di Excel
-    - Coba berbagai kombinasi kelompok dan perhitungan
-    
-    #### 📊 **Penjelasan Operasi Perhitungan:**
-    - **Jumlahkan**: Menjumlahkan semua nilai (misal: total penjualan)
-    - **Rata-rata**: Nilai tengah dari semua data
-    - **Nilai Tengah**: Median, nilai di posisi tengah
-    - **Hitung Jumlah**: Menghitung berapa banyak baris data
-    - **Nilai Terkecil/Terbesar**: Mencari nilai minimum/maksimum
-    """)
+
 
 # ===== FOOTER =====
 st.divider()
