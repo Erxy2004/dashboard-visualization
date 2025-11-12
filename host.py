@@ -159,20 +159,6 @@ uploaded_file = st.file_uploader(
 use_sample = st.checkbox("Gunakan Data Contoh", value=not uploaded_file)
 
 # Asumsikan fungsi create_sample_data() dan load_data() sudah didefinisikan
-def create_sample_data():
-    import pandas as pd
-    return pd.DataFrame({
-        "Nama": ["Andi", "Budi", "Citra"],
-        "Nilai": [90, 85, 88]
-    })
-
-def load_data(file):
-    import pandas as pd
-    try:
-        df = pd.read_csv(file)
-        return df, None
-    except Exception as e:
-        return None, str(e)
 
 if use_sample and not uploaded_file:
     df_original = create_sample_data()
